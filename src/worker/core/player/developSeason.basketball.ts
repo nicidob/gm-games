@@ -190,7 +190,7 @@ const calcBaseChange = (age: number, coachingRank: number): number => {
 	}
 
 	// Noise
-	const mult = 1.732; // sqrt(3)
+	const mult = 2; // sqrt(3)
 	if (age <= 23) {
 		val += helpers.bound(random.realGauss(0, 5 * mult), -4 * mult, 20 * mult);
 	} else if (age <= 25) {
@@ -231,23 +231,24 @@ const developSeason = (
 
 	const baseChangeA = calcBaseChange(age, coachingRank);
 	const baseChangeS = calcBaseChange(age, coachingRank);
-	const baseChangeZ = calcBaseChange(age, coachingRank);
+	const baseChangeO = calcBaseChange(age, coachingRank);
+	const baseChangeD = calcBaseChange(age, coachingRank);
 
 	const ratingsNumbers: Record<Exclude<RatingKey, "hgt">, number> = {
-		stre: baseChangeA,
+		stre: (baseChangeA + baseChangeD) / 2,
 		spd: baseChangeA,
 		jmp: baseChangeA,
 		endu: baseChangeA,
-		dnk: baseChangeS,
-		ins: baseChangeS,
+		dnk: (baseChangeA + baseChangeS) / 2,
+		ins: (baseChangeO + baseChangeS) / 2,
 		ft: baseChangeS,
 		fg: baseChangeS,
 		tp: baseChangeS,
-		oiq: baseChangeZ,
-		diq: baseChangeZ,
-		drb: baseChangeZ,
-		pss: baseChangeZ,
-		reb: baseChangeZ,
+		oiq: baseChangeO,
+		diq: baseChangeD,
+		drb: baseChangeO,
+		pss: baseChangeO,
+		reb: baseChangeD,
 	};
 
 	for (const key of helpers.keys(ratingsFormulas)) {
