@@ -190,12 +190,13 @@ const calcBaseChange = (age: number, coachingRank: number): number => {
 	}
 
 	// Noise
+	const mult = 1.732; // sqrt(3)
 	if (age <= 23) {
-		val += helpers.bound(random.realGauss(0, 5), -4, 20);
+		val += helpers.bound(random.realGauss(0, 5 * mult), -4 * mult, 20 * mult);
 	} else if (age <= 25) {
-		val += helpers.bound(random.realGauss(0, 5), -4, 10);
+		val += helpers.bound(random.realGauss(0, 5 * mult), -4 * mult, 10 * mult);
 	} else {
-		val += helpers.bound(random.realGauss(0, 3), -2, 4);
+		val += helpers.bound(random.realGauss(0, 3 * mult), -2 * mult, 4 * mult);
 	}
 
 	// Modulate by coaching. g.get("numActiveTeams") doesn't exist when upgrading DB, but that doesn't matter
@@ -228,7 +229,26 @@ const developSeason = (
 		}
 	}
 
-	const baseChange = calcBaseChange(age, coachingRank);
+	const baseChangeA = calcBaseChange(age, coachingRank);
+	const baseChangeS = calcBaseChange(age, coachingRank);
+	const baseChangeZ = calcBaseChange(age, coachingRank);
+
+	const ratingsNumbers: Record<Exclude<RatingKey, "hgt">, number> = {
+		stre: baseChangeA,
+		spd: baseChangeA,
+		jmp: baseChangeA,
+		endu: baseChangeA,
+		dnk: baseChangeS,
+		ins: baseChangeS,
+		ft: baseChangeS,
+		fg: baseChangeS,
+		tp: baseChangeS,
+		oiq: baseChangeZ,
+		diq: baseChangeZ,
+		drb: baseChangeZ,
+		pss: baseChangeZ,
+		reb: baseChangeZ,
+	};
 
 	for (const key of helpers.keys(ratingsFormulas)) {
 		const ageModifier = ratingsFormulas[key].ageModifier(age);
@@ -237,7 +257,7 @@ const developSeason = (
 		ratings[key] = limitRating(
 			ratings[key] +
 				helpers.bound(
-					(baseChange + ageModifier) * random.uniform(0.4, 1.4),
+					(ratingsNumbers[key] + ageModifier) * random.uniform(0.4, 1.4),
 					changeLimits[0],
 					changeLimits[1],
 				),
